@@ -6,48 +6,62 @@
 <title>VKP24 Status Maker</title>
 
 <style>
-body {
-  margin: 0;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-  background: #eef2ff;
-  text-align: center;
+*{box-sizing:border-box}
+body{
+  margin:0;
+  padding:15px;
+  font-family:Arial,sans-serif;
+  background:#eef1f7;
+  color:#222;
 }
-.container {
-  max-width: 500px;
-  margin: auto;
-  background: white;
-  padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 3px 15px #aaa;
+.container{
+  max-width:500px;
+  margin:auto;
+  background:white;
+  padding:18px;
+  border-radius:15px;
+  box-shadow:0 3px 15px #0002;
 }
-h1 {
-  color: #172554;
+h2{text-align:center;color:#172b55}
+p{text-align:center;color:#555}
+label{
+  display:block;
+  margin-top:13px;
+  font-weight:bold;
 }
-input, textarea {
-  width: 95%;
-  padding: 12px;
-  margin: 9px 0;
-  border: 1px solid #bbb;
-  border-radius: 8px;
-  font-size: 16px;
-  box-sizing: border-box;
+input,textarea,select{
+  width:100%;
+  padding:12px;
+  margin-top:6px;
+  border:1px solid #ccc;
+  border-radius:8px;
+  font-size:16px;
 }
-button {
-  background: #172554;
-  color: white;
-  border: none;
-  padding: 13px 20px;
-  margin: 8px;
-  border-radius: 8px;
-  font-size: 16px;
+textarea{height:75px;resize:vertical}
+button{
+  width:100%;
+  padding:13px;
+  margin-top:12px;
+  border:0;
+  border-radius:9px;
+  background:#172b55;
+  color:white;
+  font-size:17px;
+  font-weight:bold;
 }
-canvas {
-  width: 100%;
-  max-width: 400px;
-  margin-top: 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+#download{background:#168447}
+#share{background:#1684bd}
+canvas{
+  width:100%;
+  margin-top:18px;
+  border-radius:10px;
+  border:1px solid #ddd;
+}
+.footer{
+  text-align:center;
+  font-size:12px;
+  margin-top:15px;
+  color:#777;
 }
 </style>
 </head>
@@ -55,108 +69,178 @@ canvas {
 <body>
 <div class="container">
 
-<h1>VKP24 Status Maker</h1>
+<h2>VKP24 STATUS MAKER</h2>
 <p>अपनी फोटो से सुंदर स्टेटस बनाएं</p>
 
+<label>अपनी फोटो चुनें</label>
 <input type="file" id="photo" accept="image/*">
 
-<textarea id="message" rows="2"
-placeholder="अपना संदेश लिखें">जय श्री राम</textarea>
+<label>अपना संदेश लिखें</label>
+<textarea id="message">जय श्री राम</textarea>
 
-<input type="text" id="business"
-placeholder="अपना नाम या दुकान का नाम लिखें"
-value="VKP24">
+<label>दुकान या व्यवसाय का नाम</label>
+<input type="text" id="business" value="VKP24">
+
+<label>मोबाइल नंबर</label>
+<input type="tel" id="phone" placeholder="अपना मोबाइल नंबर लिखें">
+
+<label>डिजाइन चुनें</label>
+<select id="theme">
+<option value="blue">Navy Blue और White</option>
+<option value="saffron">भगवा और Golden</option>
+<option value="colorful">Colorful Crafto Style</option>
+</select>
 
 <button onclick="makeStatus()">स्टेटस बनाएं</button>
 
-<br>
+<canvas id="canvas" width="800" height="1000"></canvas>
 
-<canvas id="canvas" width="400" height="500"></canvas>
+<button id="download" onclick="downloadStatus()">फोटो डाउनलोड करें</button>
+<button id="share" onclick="shareStatus()">WhatsApp पर शेयर करें</button>
 
-<br>
-
-<button onclick="downloadStatus()">डाउनलोड करें</button>
+<div class="footer">VKP24 Status Maker | Made with ❤️</div>
 
 </div>
 
 <script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 let selectedImage = null;
 
-document.getElementById("photo").addEventListener("change", function(e) {
+document.getElementById("photo").addEventListener("change", function(e){
   const file = e.target.files[0];
-
-  if (!file) return;
+  if(!file) return;
 
   const reader = new FileReader();
 
-  reader.onload = function(event) {
+  reader.onload = function(event){
     const img = new Image();
-
-    img.onload = function() {
+    img.onload = function(){
       selectedImage = img;
       makeStatus();
     };
-
     img.src = event.target.result;
   };
 
   reader.readAsDataURL(file);
 });
 
-function makeStatus() {
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
+function makeStatus(){
 
-  ctx.fillStyle = "#172554";
-  ctx.fillRect(0, 0, 400, 500);
+  const message = document.getElementById("message").value;
+  const business = document.getElementById("business").value;
+  const phone = document.getElementById("phone").value;
+  const theme = document.getElementById("theme").value;
 
-  if (selectedImage) {
-    const scale = Math.min(
-      400 / selectedImage.width,
-      330 / selectedImage.height
-    );
+  let bg, color, accent;
 
-    const w = selectedImage.width * scale;
-    const h = selectedImage.height * scale;
-
-    ctx.drawImage(
-      selectedImage,
-      (400 - w) / 2,
-      20 + (330 - h) / 2,
-      w,
-      h
-    );
-  } else {
-    ctx.fillStyle = "white";
-    ctx.font = "22px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("अपनी फोटो लगाएं", 200, 180);
+  if(theme === "blue"){
+    bg = "#10264d";
+    color = "#ffffff";
+    accent = "#d9e5ff";
+  }
+  else if(theme === "saffron"){
+    bg = "#f28c28";
+    color = "#ffffff";
+    accent = "#ffe7a3";
+  }
+  else{
+    bg = "#7b2ff7";
+    color = "#ffffff";
+    accent = "#ffe36e";
   }
 
-  ctx.fillStyle = "white";
-  ctx.textAlign = "center";
-  ctx.font = "bold 25px Arial";
-  ctx.fillText(
-    document.getElementById("message").value,
-    200, 400
-  );
+  ctx.fillStyle = bg;
+  ctx.fillRect(0,0,800,1000);
 
-  ctx.font = "bold 19px Arial";
-  ctx.fillText(
-    document.getElementById("business").value,
-    200, 455
-  );
+  ctx.fillStyle = accent;
+  ctx.fillRect(25,25,750,950);
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(38,38,724,924);
+
+  ctx.textAlign = "center";
+
+  ctx.fillStyle = accent;
+  ctx.font = "bold 40px Arial";
+  ctx.fillText("आपका अपना स्टेटस",400,100);
+
+  if(selectedImage){
+
+    let iw = selectedImage.width;
+    let ih = selectedImage.height;
+
+    let scale = Math.min(640/iw,570/ih);
+    let w = iw*scale;
+    let h = ih*scale;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect((800-w)/2,140,w,h,25);
+    ctx.clip();
+    ctx.drawImage(selectedImage,(800-w)/2,140,w,h);
+    ctx.restore();
+
+  }else{
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 42px Arial";
+    ctx.fillText("अपनी फोटो चुनें",400,400);
+
+  }
+
+  ctx.fillStyle = color;
+  ctx.font = "bold 42px Arial";
+
+  let words = message.split(" ");
+  let line = "";
+  let y = 790;
+
+  words.forEach(word=>{
+    let test = line + word + " ";
+    if(ctx.measureText(test).width > 700){
+      ctx.fillText(line,400,y);
+      line = word + " ";
+      y += 55;
+    }else{
+      line = test;
+    }
+  });
+
+  ctx.fillText(line,400,y);
+
+  ctx.fillStyle = accent;
+  ctx.font = "bold 34px Arial";
+  ctx.fillText(business,400,900);
+
+  ctx.font = "28px Arial";
+  ctx.fillText(phone,400,940);
 }
 
-function downloadStatus() {
+function downloadStatus(){
   makeStatus();
-
   const link = document.createElement("a");
   link.download = "VKP24-Status.png";
-  link.href = document.getElementById("canvas").toDataURL("image/png");
+  link.href = canvas.toDataURL("image/png");
   link.click();
 }
-</script>
 
+async function shareStatus(){
+  makeStatus();
+
+  canvas.toBlob(async function(blob){
+    const file = new File([blob],"VKP24-Status.png",{type:"image/png"});
+
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file],title:"VKP24 Status"});
+    }else{
+      alert("पहले फोटो डाउनलोड करें, फिर WhatsApp पर भेजें।");
+      downloadStatus();
+    }
+  });
+}
+
+makeStatus();
+</script>
 </body>
 </html>
