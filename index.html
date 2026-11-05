@@ -229,6 +229,33 @@ async function shareStatus(){
   makeStatus();
 
   canvas.toBlob(async function(blob){
+    if(!blob){
+      alert("फोटो तैयार नहीं हुई।");
+      return;
+    }
+
+    const file = new File([blob], "VKP24-Status.png", {
+      type: "image/png"
+    });
+
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try {
+        await navigator.share({
+          files:[file],
+          title:"VKP24 Status"
+        });
+      } catch(e) {
+        console.log(e);
+      }
+    } else {
+      downloadStatus();
+      window.open("https://wa.me/", "_blank");
+    }
+  }, "image/png");
+}
+  makeStatus();
+
+  canvas.toBlob(async function(blob){
     const file = new File([blob],"VKP24-Status.png",{type:"image/png"});
 
     if(navigator.canShare && navigator.canShare({files:[file]})){
