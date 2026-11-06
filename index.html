@@ -7,13 +7,14 @@
 
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
   padding:15px;
-  font-family:Arial,sans-serif;
   background:#eef1f7;
-  color:#222;
+  font-family:Arial,sans-serif;
 }
+
 .container{
   max-width:500px;
   margin:auto;
@@ -22,13 +23,23 @@ body{
   border-radius:15px;
   box-shadow:0 3px 15px #0002;
 }
-h2{text-align:center;color:#172b55}
-p{text-align:center;color:#555}
+
+h2{
+  text-align:center;
+  color:#172b55;
+}
+
+p{
+  text-align:center;
+  color:#555;
+}
+
 label{
   display:block;
   margin-top:13px;
   font-weight:bold;
 }
+
 input,textarea,select{
   width:100%;
   padding:12px;
@@ -37,7 +48,11 @@ input,textarea,select{
   border-radius:8px;
   font-size:16px;
 }
-textarea{height:75px;resize:vertical}
+
+textarea{
+  height:75px;
+}
+
 button{
   width:100%;
   padding:13px;
@@ -49,14 +64,17 @@ button{
   font-size:17px;
   font-weight:bold;
 }
+
 #download{background:#168447}
 #share{background:#1684bd}
+
 canvas{
   width:100%;
   margin-top:18px;
-  border-radius:10px;
   border:1px solid #ddd;
+  border-radius:10px;
 }
+
 .footer{
   text-align:center;
   font-size:12px;
@@ -67,6 +85,7 @@ canvas{
 </head>
 
 <body>
+
 <div class="container">
 
 <h2>VKP24 STATUS MAKER</h2>
@@ -91,34 +110,49 @@ canvas{
 <option value="colorful">Colorful Crafto Style</option>
 </select>
 
-<button onclick="makeStatus()">स्टेटस बनाएं</button>
+<button type="button" onclick="makeStatus()">स्टेटस बनाएं</button>
 
 <canvas id="canvas" width="800" height="1000"></canvas>
 
-<button id="download" onclick="downloadStatus()">फोटो डाउनलोड करें</button>
-<button id="share" onclick="shareStatus()">WhatsApp पर शेयर करें</button>
+<button type="button" id="download" onclick="downloadStatus()">
+फोटो डाउनलोड करें
+</button>
 
-<div class="footer">VKP24 Status Maker | Made with ❤️</div>
+<button type="button" id="share" onclick="shareStatus()">
+WhatsApp पर शेयर करें
+</button>
+
+<div class="footer">VKP24 Status Maker | Made with Love</div>
 
 </div>
 
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+
 let selectedImage = null;
 
 document.getElementById("photo").addEventListener("change", function(e){
+
   const file = e.target.files[0];
+
   if(!file) return;
 
   const reader = new FileReader();
 
   reader.onload = function(event){
+
     const img = new Image();
+
     img.onload = function(){
       selectedImage = img;
       makeStatus();
     };
+
+    img.onerror = function(){
+      alert("फोटो खुल नहीं पाई। दूसरी फोटो चुनें।");
+    };
+
     img.src = event.target.result;
   };
 
@@ -153,38 +187,31 @@ function makeStatus(){
   ctx.fillStyle = bg;
   ctx.fillRect(0,0,800,1000);
 
-  ctx.fillStyle = accent;
-  ctx.fillRect(25,25,750,950);
-
-  ctx.fillStyle = bg;
-  ctx.fillRect(38,38,724,924);
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 12;
+  ctx.strokeRect(20,20,760,960);
 
   ctx.textAlign = "center";
 
   ctx.fillStyle = accent;
   ctx.font = "bold 40px Arial";
-  ctx.fillText("आपका अपना स्टेटस",400,100);
+  ctx.fillText("VKP24 STATUS",400,100);
 
   if(selectedImage){
 
-    let iw = selectedImage.width;
-    let ih = selectedImage.height;
+    const iw = selectedImage.width;
+    const ih = selectedImage.height;
 
-    let scale = Math.min(640/iw,570/ih);
-    let w = iw*scale;
-    let h = ih*scale;
+    const scale = Math.min(640/iw,570/ih);
+    const w = iw*scale;
+    const h = ih*scale;
 
-    ctx.save();
-    ctx.beginPath();
-    ctx.roundRect((800-w)/2,140,w,h,25);
-    ctx.clip();
     ctx.drawImage(selectedImage,(800-w)/2,140,w,h);
-    ctx.restore();
 
   }else{
 
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 42px Arial";
+    ctx.fillStyle = color;
+    ctx.font = "bold 40px Arial";
     ctx.fillText("अपनी फोटो चुनें",400,400);
 
   }
@@ -192,19 +219,24 @@ function makeStatus(){
   ctx.fillStyle = color;
   ctx.font = "bold 42px Arial";
 
-  let words = message.split(" ");
+  const words = message.split(/\s+/);
   let line = "";
   let y = 790;
 
-  words.forEach(word=>{
-    let test = line + word + " ";
+  words.forEach(function(word){
+
+    const test = line + word + " ";
+
     if(ctx.measureText(test).width > 700){
+
       ctx.fillText(line,400,y);
       line = word + " ";
       y += 55;
+
     }else{
       line = test;
     }
+
   });
 
   ctx.fillText(line,400,y);
@@ -218,56 +250,77 @@ function makeStatus(){
 }
 
 function downloadStatus(){
+
   makeStatus();
-  const link = document.createElement("a");
-  link.download = "VKP24-Status.png";
-  link.href = canvas.toDataURL("image/png");
-  link.click();
+
+  try{
+
+    const link = document.createElement("a");
+    link.download = "VKP24-Status.png";
+    link.href = canvas.toDataURL("image/png");
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+  }catch(error){
+
+    alert("फोटो डाउनलोड नहीं हुई। कृपया दोबारा कोशिश करें।");
+
+  }
 }
 
 async function shareStatus(){
+
   makeStatus();
 
   canvas.toBlob(async function(blob){
+
     if(!blob){
       alert("फोटो तैयार नहीं हुई।");
       return;
     }
 
-    const file = new File([blob], "VKP24-Status.png", {
-      type: "image/png"
-    });
+    const file = new File(
+      [blob],
+      "VKP24-Status.png",
+      {type:"image/png"}
+    );
 
-    if(navigator.canShare && navigator.canShare({files:[file]})){
-      try {
+    try{
+
+      if(navigator.canShare && navigator.canShare({files:[file]}) &&
+         navigator.share){
+
         await navigator.share({
           files:[file],
           title:"VKP24 Status"
         });
-      } catch(e) {
-        console.log(e);
+
+      }else{
+
+        downloadStatus();
+
+        alert("फोटो डाउनलोड हो गई है। अब WhatsApp खोलकर फोटो भेजें।");
+
+        window.open("https://wa.me/","_blank");
+
       }
-    } else {
-      downloadStatus();
-      window.open("https://wa.me/", "_blank");
-    }
-  }, "image/png");
-}
-  makeStatus();
 
-  canvas.toBlob(async function(blob){
-    const file = new File([blob],"VKP24-Status.png",{type:"image/png"});
+    }catch(error){
 
-    if(navigator.canShare && navigator.canShare({files:[file]})){
-      await navigator.share({files:[file],title:"VKP24 Status"});
-    }else{
-      alert("पहले फोटो डाउनलोड करें, फिर WhatsApp पर भेजें।");
-      downloadStatus();
+      if(error.name !== "AbortError"){
+        downloadStatus();
+        alert("फोटो डाउनलोड कर लें और WhatsApp में भेजें।");
+      }
+
     }
-  });
+
+  },"image/png");
 }
 
 makeStatus();
 </script>
+
 </body>
 </html>
